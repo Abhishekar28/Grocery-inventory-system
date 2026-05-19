@@ -1,0 +1,15 @@
+{
+  "projectName": "Grocery-inventory-system",
+  "description": "Grocery Inventory System Backend",
+  "version": "1.0.0",
+  "status": "initial",
+  "backendTechStack": {
+    "runtime": "Node.js",
+    "framework": "Express.js",
+    "dependencies": [
+      "express",
+      "cors",
+      "dotenv"
+    ]
+  }
+}
