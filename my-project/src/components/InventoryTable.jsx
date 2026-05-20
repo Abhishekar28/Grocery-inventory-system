@@ -1,5 +1,5 @@
-import React from 'react';
-import { Search, Edit2, Trash2, Calendar, ShieldAlert } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Search, Edit2, Trash2, Calendar, ShieldAlert, Mic, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = [
@@ -34,7 +34,67 @@ function InventoryTable({
   onEdit, 
   onDelete 
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  const startListening = () => {
+    // If we're already listening, toggle off and stop cleanly
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("❌ Voice recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+
+    // Dynamically load standard, highly optimized speech recognition models based on active language setting
+    const activeLang = i18n.language || 'en';
+    let recognitionLang = 'en-US';
+    if (activeLang === 'hi') {
+      recognitionLang = 'hi-IN'; // State-of-the-art Hindi (India) Model
+    } else if (activeLang === 'kn') {
+      recognitionLang = 'kn-IN'; // State-of-the-art Kannada (India) Model
+    } else {
+      recognitionLang = 'en-IN'; // State-of-the-art English (India) Model (tuned for regional pronunciation accents)
+    }
+    
+    recognition.lang = recognitionLang;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      const text = event.results[0][0].transcript;
+      const cleanText = text.trim().replace(/\.$/g, ''); // Strip trailing period/full stop automatically
+      setSearch(cleanText);
+    };
+
+    recognition.onerror = (e) => {
+      console.error("Speech recognition error:", e.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
 
   // Function to determine stock warning level
   const getStockStatus = (stock, minStock) => {
@@ -67,10 +127,22 @@ function InventoryTable({
           <input 
             type="text" 
             className="form-input" 
-            placeholder={t('inventory.searchPlaceholder', 'Search by name, SKU, or supplier...')} 
+            placeholder={isListening ? "🎙️ Listening... Speak now!" : t('inventory.searchPlaceholder', 'Search by name, SKU, or supplier...')} 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            style={{ paddingRight: '3.4rem' }} /* Added padding to clear mic icon set to right: 1.4rem */
           />
+          <button
+            type="button"
+            onClick={startListening}
+            className={`mic-icon-btn ${isListening ? 'listening' : ''}`}
+            style={{
+              animation: isListening ? 'pulse-mic 1.2s infinite' : 'none'
+            }}
+            title="Search by voice"
+          >
+            <Mic size={15} />
+          </button>
         </div>
         
         <select 

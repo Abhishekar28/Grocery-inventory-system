@@ -101,6 +101,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* App Container */
 .app-container {
+  position: relative;
+  z-index: 1; /* Sits strictly on top of background watermarks (z-index: 0) */
   max-width: 1500px;
   margin: 0 auto;
   padding: 1rem 1.5rem;
@@ -116,7 +118,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.875rem;
-  padding-bottom: 0.75rem;
+  padding: 0.75rem 0;
   border-bottom: 1px solid var(--border-glass);
   flex-shrink: 0;
 }
@@ -287,10 +289,10 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.1;
 }
 
-/* Two Column Layout */
+/* Single Column Layout */
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr;
   gap: 1rem;
   align-items: stretch;
   flex-grow: 1;
@@ -323,6 +325,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glass Panels */
 .panel {
+  position: relative;
+  z-index: 1; /* Sits strictly on top of background watermarks */
   background: var(--bg-card);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
@@ -418,16 +422,68 @@ h1, h2, h3, h4, h5, h6 {
 
 .search-input-wrapper {
   position: relative;
-  flex: 1;
+  flex: 0 0 350px; /* Make the search bar width compact */
   min-width: 180px;
+  max-width: 100%;
 }
 
-.search-input-wrapper svg {
+@media (max-width: 768px) {
+  .search-input-wrapper {
+    flex: 1; /* On smaller devices, let it span standard flex sizes */
+  }
+}
+
+.search-input-wrapper svg:not(.mic-icon-svg) {
   position: absolute;
   left: 0.7rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
+  pointer-events: none;
+}
+
+.mic-icon-btn {
+  position: absolute;
+  right: 1.2rem; /* Sits perfectly centered on the flat part of the input */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: none;
+  cursor: pointer !important; /* Force pointer cursor */
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 10; /* Keep it high above other input layers */
+}
+
+.mic-icon-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--color-primary);
+}
+
+.mic-icon-btn.listening {
+  color: var(--color-critical);
+  background: var(--color-critical-glow);
+}
+
+@keyframes pulse-mic {
+  0% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  70% {
+    transform: translateY(-50%) scale(1.15);
+    box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
 }
 
 .form-input {
@@ -796,3 +852,5 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes slideUp {
   to { transform: translateY(0); }
 }
+
+

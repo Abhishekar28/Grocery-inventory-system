@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LogIn, UserPlus, Key, Mail, User, ShieldAlert, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import logoImg from '../assets/logo.png';
 
 function Login({ onLoginSuccess }) {
   const { t, i18n } = useTranslation();
@@ -126,6 +127,7 @@ function Login({ onLoginSuccess }) {
 
         {/* Header Ribbon */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <img src={logoImg} alt="Grocify Logo" style={{ width: '90px', height: '90px', objectFit: 'contain', margin: '0 auto 0.75rem auto', display: 'block' }} />
           <h1 style={{ fontSize: '2.5rem', background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Outfit, sans-serif', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
             Grocify
           </h1>
