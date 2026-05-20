@@ -12,6 +12,7 @@ import POSCheckout from './components/POSCheckout';
 import logoImg from './assets/logo.png';
 function App() {
   const { t, i18n } = useTranslation();
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
   
   // Update HTML lang attribute for OS/Keyboard hinting
   useEffect(() => {
@@ -147,7 +148,7 @@ function App() {
     try {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
       const queryParams = new URLSearchParams({ search, category, sortBy }).toString();
-      const res = await fetch(`/api/items?${queryParams}`, { headers });
+      const res = await fetch(`${API_BASE}/api/items?${queryParams}`, { headers });
       if (!res.ok) throw new Error('Failed to fetch items');
       setItems(await res.json());
     } catch (err) {
@@ -159,7 +160,7 @@ function App() {
   const fetchStats = async () => {
     try {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const res = await fetch('/api/items/stats', { headers });
+      const res = await fetch(`${API_BASE}/api/items/stats`, { headers });
       if (!res.ok) throw new Error('Failed to fetch statistics');
       setStats(await res.json());
     } catch (err) { console.error(err); }
@@ -168,7 +169,7 @@ function App() {
   const fetchLowStock = async () => {
     try {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const res = await fetch('/api/items/low-stock', { headers });
+      const res = await fetch(`${API_BASE}/api/items/low-stock`, { headers });
       if (!res.ok) throw new Error('Failed to fetch low stock alerts');
       setLowStockItems(await res.json());
     } catch (err) { console.error(err); }
@@ -245,8 +246,8 @@ function App() {
       }
 
       const response = editingItem
-        ? await fetch(`/api/items/${editingItem._id}`, { method: 'PUT', headers, body: JSON.stringify(payload) })
-        : await fetch('/api/items', { method: 'POST', headers, body: JSON.stringify(payload) });
+        ? await fetch(`${API_BASE}/api/items/${editingItem._id}`, { method: 'PUT', headers, body: JSON.stringify(payload) })
+        : await fetch(`${API_BASE}/api/items`, { method: 'POST', headers, body: JSON.stringify(payload) });
       const resData = await response.json();
       if (!response.ok) throw new Error(resData.message || 'Save failed');
 
@@ -272,7 +273,7 @@ function App() {
   const handleDeleteItem = async (id) => {
     try {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const response = await fetch(`/api/items/${id}`, { method: 'DELETE', headers });
+      const response = await fetch(`${API_BASE}/api/items/${id}`, { method: 'DELETE', headers });
       if (!response.ok) { const d = await response.json(); throw new Error(d.message || 'Delete failed'); }
       loadDashboardData(false);
     } catch (err) { alert(`⚠️ Delete Error: ${err.message}`); }
@@ -283,7 +284,7 @@ function App() {
       const item = items.find(i => i._id === id);
       if (!item) return;
       const headers = { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
-      const response = await fetch(`/api/items/${id}`, { method: 'PUT', headers, body: JSON.stringify({ stock: item.stock + amount }) });
+      const response = await fetch(`${API_BASE}/api/items/${id}`, { method: 'PUT', headers, body: JSON.stringify({ stock: item.stock + amount }) });
       if (!response.ok) throw new Error('Failed to update stock');
       
       addNotification('received', `Received stock: Replenished ${amount} unit(s) of "${item.name}" (New Stock: ${item.stock + amount})`);
@@ -301,7 +302,7 @@ function App() {
         if (!item) return;
         const newStock = Math.max(0, item.stock - cartItem.cartQuantity);
         
-        const response = await fetch(`/api/items/${item._id}`, {
+        const response = await fetch(`${API_BASE}/api/items/${item._id}`, {
           method: 'PUT',
           headers,
           body: JSON.stringify({ stock: newStock })

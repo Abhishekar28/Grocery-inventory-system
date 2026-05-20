@@ -14,6 +14,8 @@ function Login({ onLoginSuccess }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
   // Dynamically load Google Identity Services script
   useEffect(() => {
@@ -56,7 +58,7 @@ function Login({ onLoginSuccess }) {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(`${API_BASE}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: response.credential })
@@ -94,7 +96,7 @@ function Login({ onLoginSuccess }) {
     }
 
     setLoading(true);
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+    const endpoint = isLogin ? `${API_BASE}/api/auth/login` : `${API_BASE}/api/auth/signup`;
 
     try {
       const res = await fetch(endpoint, {
